@@ -68,9 +68,10 @@ ROBOTSTXT_OBEY = False
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    # 'ArticleSpider.pipelines.JsonWithEncodingPipeline': 2,
-   'ArticleSpider.pipelines.JsonExporterPipeline': 2,
+   # 'ArticleSpider.pipelines.JsonExporterPipeline': 2,
+   'ArticleSpider.pipelines.MysqlTwistedPipeline': 1,
    # 'scrapy.pipelines.images.ImagesPipeline': 1,
-   'ArticleSpider.pipelines.ArticleImagePipeline': 1,
+   # 'ArticleSpider.pipelines.ArticleImagePipeline': 1,
 
 }
 IMAGES_URLS_FIELD = 'front_image_url'
@@ -97,3 +98,9 @@ IMAGES_STORE = os.path.join(project_dir, 'images')
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+MYSQL_HOST = "127.0.0.1"
+MYSQL_DBNAME = "article_spider"
+MYSQL_USER = "homestead"
+MYSQL_PASSWORD = "secret"
+MYSQL_PORT = 33060

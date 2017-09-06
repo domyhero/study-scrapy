@@ -52,6 +52,7 @@ class JobboleSpider(scrapy.Spider):
         # css 选取字段
         article_item = JobBoleArticleItem()
         article_item['title'] = title
+        article_item['create_date'] = create_date
         article_item['front_image_url'] = [response.meta['front_image_url']]
         article_item['url'] = response.url
         article_item['url_object_id'] = get_md5(response.url)
