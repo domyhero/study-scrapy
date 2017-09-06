@@ -5,8 +5,10 @@ import datetime
 
 from scrapy.http import Request
 from urllib import parse
-from ArticleSpider.items import JobBoleArticleItem
+from ArticleSpider.items import JobBoleArticleItem, ArticleItemLoader
 from ArticleSpider.utils.common import get_md5
+from scrapy.loader import ItemLoader
+
 
 class JobboleSpider(scrapy.Spider):
     name = 'jobbole'
@@ -28,33 +30,50 @@ class JobboleSpider(scrapy.Spider):
 
     def parse_detail(self, response):
         # xpath 选取字段
-        title = response.xpath("//div[@class='entry-header']/h1/text()").extract_first()
-        create_date = response.xpath("//p[@class='entry-meta-hide-on-mobile']/text()").extract()[0].replace('·', '').strip()
-        try:
-            create_date = datetime.datetime.strptime(create_date, "%Y/%m/%d").date()
-        except Exception as e:
-            create_date = datetime.datetime.now().date()
-
-        vote_post_up = int(response.xpath("//span[contains(@class, 'vote-post-up')]/h10/text()").extract()[0])
-
-        bookmark_nums = response.xpath("//span[contains(@class, 'bookmark-btn')]/text()").extract_first()
-        if bookmark_nums:
-            match_re = re.match(".*(\d+).*", bookmark_nums)
-            if match_re:
-                bookmark = int(match_re.group(1))
-
-        comment_nums = response.xpath("//a[@href='#article-comment']/text()").extract_first()
-        if comment_nums:
-            match_re = re.match(".*(\d+).*", comment_nums)
-            if match_re:
-                comment = int(match_re.group(1))
+        # title = response.xpath("//div[@class='entry-header']/h1/text()").extract_first()
+        # create_date = response.xpath("//p[@class='entry-meta-hide-on-mobile']/text()").extract()[0].replace('·', '').strip()
+        # try:
+        #     create_date = datetime.datetime.strptime(create_date, "%Y/%m/%d").date()
+        # except Exception as e:
+        #     create_date = datetime.datetime.now().date()
+        #
+        # vote_post_up = int(response.xpath("//span[contains(@class, 'vote-post-up')]/h10/text()").extract()[0])
+        #
+        # bookmark_nums = response.xpath("//span[contains(@class, 'bookmark-btn')]/text()").extract_first()
+        # if bookmark_nums:
+        #     match_re = re.match(".*(\d+).*", bookmark_nums)
+        #     if match_re:
+        #         bookmark = int(match_re.group(1))
+        #
+        # comment_nums = response.xpath("//a[@href='#article-comment']/text()").extract_first()
+        # if comment_nums:
+        #     match_re = re.match(".*(\d+).*", comment_nums)
+        #     if match_re:
+        #         comment = int(match_re.group(1))
 
         # css 选取字段
-        article_item = JobBoleArticleItem()
-        article_item['title'] = title
-        article_item['create_date'] = create_date
-        article_item['front_image_url'] = [response.meta['front_image_url']]
-        article_item['url'] = response.url
-        article_item['url_object_id'] = get_md5(response.url)
+        # article_item = JobBoleArticleItem()
+        # article_item['title'] = title
+        # article_item['create_date'] = create_date
+        # article_item['front_image_url'] = [response.meta['front_image_url']]
+        # article_item['url'] = response.url
+        # article_item['url_object_id'] = get_md5(response.url)
+
+        #通过 ItemLoader 加载 Item
+        item_loader = ArticleItemLoader(item=JobBoleArticleItem(), response=response)
+        item_loader.add_xpath("title", "//div[@class='entry-header']/h1/text()")
+        item_loader.add_xpath("create_date", "//p[@class='entry-meta-hide-on-mobile']/text()")
+        # item_loader.add_xpath("vote_post_up", "//span[contains(@class, 'vote-post-up')]/h10/text()")
+        # item_loader.add_xpath("bookmark_nums", "//span[contains(@class, 'bookmark-btn')]/text()")
+        item_loader.add_xpath("comment_nums", "//a[@href='#article-comment']/span/text()")
+
+        item_loader.add_css("content", "div.entry")
+
+        item_loader.add_value("url", response.url)
+        item_loader.add_value("url_object_id", get_md5(response.url))
+        item_loader.add_value("front_image_url", response.meta.get("front_image_url", ""))
+
+        article_item = item_loader.load_item()
+
         yield article_item
 
