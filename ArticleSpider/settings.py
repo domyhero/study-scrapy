@@ -69,7 +69,8 @@ ROBOTSTXT_OBEY = False
 ITEM_PIPELINES = {
    # 'ArticleSpider.pipelines.JsonWithEncodingPipeline': 2,
    # 'ArticleSpider.pipelines.JsonExporterPipeline': 2,
-   'ArticleSpider.pipelines.MysqlTwistedPipeline': 1,
+   # 'ArticleSpider.pipelines.MysqlTwistedPipeline': 1,
+   'ArticleSpider.pipelines.MysqlPipeline': 1,
    # 'scrapy.pipelines.images.ImagesPipeline': 1,
    # 'ArticleSpider.pipelines.ArticleImagePipeline': 1,
 
